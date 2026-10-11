@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>the third space | Cozy Cafe & Focus Studio</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cozy: {
+                            50: '#FAF8F5',
+                            100: '#F0EBE1',
+                            200: '#E1D7C6',
+                            700: '#7B5644',
+                            800: '#5C4033',
+                            900: '#3A2820',
+                            accent: '#D4A373'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            background-color: #FAF8F5;
+            color: #3A2820;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #F0EBE1; }
+        ::-webkit-scrollbar-thumb { background: #D4A373; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5C4033; }
+        .hero-pattern {
+            background-image: radial-gradient(#D4A373 0.75px, transparent 0.75px);
+            background-size: 24px 24px;
+            opacity: 0.25;
+        }
+    </style>
+</head>
+<body class="antialiased font-sans min-h-screen flex flex-col">
+
+    <div id="navbar-mount"></div>
+
+    <main class="flex-grow">
+        <section class="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32 border-b border-cozy-200">
+            <div class="absolute inset-0 hero-pattern pointer-events-none"></div>
+            
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                        <div class="inline-flex items-center space-x-2 bg-cozy-100 border border-cozy-200 px-3.5 py-1.5 rounded-full text-xs font-semibold text-cozy-800">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Open Today • 6:00 AM – 11:00 PM • Gigabit Wi-Fi Active</span>
+                        </div>
+
+                        <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-cozy-900 leading-[1.15] font-bold">
+                            Your quiet sanctuary between <span class="italic text-cozy-700">home</span> & <span class="italic text-cozy-700">work</span>.
+                        </h1>
+
+                        <p class="text-base sm:text-lg text-cozy-900/80 max-w-2xl leading-relaxed">
+                            Welcome to <strong>the third space</strong>. An artisanal coffee haven and focus studio designed for deep work, soulful conversations, and handcrafted refreshments brought straight to your table.
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                            <a href="menu.html" class="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-cozy-800 hover:bg-cozy-900 text-white font-medium px-7 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                                <i data-lucide="coffee" class="w-4 h-4 text-cozy-accent"></i>
+                                <span>Browse Menu & Order</span>
+                            </a>
+                            <a href="reservation.html" class="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-white hover:bg-cozy-100 text-cozy-900 border border-cozy-200 font-medium px-7 py-3.5 rounded-xl shadow-sm hover:shadow transition-all">
+                                <i data-lucide="calendar" class="w-4 h-4 text-cozy-800"></i>
+                                <span>Reserve a Focus Pod</span>
+                            </a>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 pt-6 border-t border-cozy-200/80 text-left">
+                            <div>
+                                <span class="font-serif text-2xl font-bold text-cozy-900 block">100%</span>
+                                <span class="text-xs text-cozy-800/70">Single-Origin Arabica</span>
+                            </div>
+                            <div>
+                                <span class="font-serif text-2xl font-bold text-cozy-900 block">1 Gbps</span>
+                                <span class="text-xs text-cozy-800/70">High-Speed Fiber</span>
+                            </div>
+                            <div>
+                                <span class="font-serif text-2xl font-bold text-cozy-900 block">Zero</span>
+                                <span class="text-xs text-cozy-800/70">Distractions</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 relative">
+                        <div class="relative mx-auto max-w-md rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-cozy-100">
+                            <img src="https://plus.unsplash.com/premium_photo-1664970900025-1e3099ca757a?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Cozy Third Space Cafe Interior" class="w-full h-[420px] object-cover">
+                            
+                            <div class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-cozy-100 flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-full bg-cozy-100 flex items-center justify-center text-cozy-800">
+                                        <i data-lucide="bell-ring" class="w-5 h-5 text-cozy-700"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-semibold text-cozy-900">Seamless Table Ordering</h4>
+                                        <p class="text-xs text-gray-500">Order from your phone, we deliver to you</p>
+                                    </div>
+                                </div>
+                                <a href="menu.html" class="p-2 bg-cozy-800 hover:bg-cozy-900 text-white rounded-full">
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 bg-white border-b border-cozy-200">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <span class="text-xs uppercase tracking-widest text-cozy-700 font-semibold font-mono">Why The Third Space?</span>
+                    <h2 class="font-serif text-3xl sm:text-4xl text-cozy-900 mt-2 font-bold">Engineered for focus, brewed with love.</h2>
+                    <p class="text-cozy-800/70 text-sm sm:text-base mt-3">
+                        We blend the warmth of a local specialty café with the quiet amenities of a modern productivity sanctuary.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="p-8 rounded-2xl bg-cozy-50 border border-cozy-200/80 hover:shadow-md transition-shadow space-y-4">
+                        <div class="w-12 h-12 rounded-xl bg-cozy-800 text-cozy-accent flex items-center justify-center">
+                            <i data-lucide="coffee" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-cozy-900">Artisan Roast & Fresh Bites</h3>
+                        <p class="text-sm text-cozy-900/70 leading-relaxed">
+                            Locally roasted specialty beans, velvety Spanish lattes, matcha from Uji, and baked-fresh morning pastries alongside comforting hot rice bowls.
+                        </p>
+                    </div>
+
+                    <div class="p-8 rounded-2xl bg-cozy-50 border border-cozy-200/80 hover:shadow-md transition-shadow space-y-4">
+                        <div class="w-12 h-12 rounded-xl bg-cozy-800 text-cozy-accent flex items-center justify-center">
+                            <i data-lucide="laptop" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-cozy-900">Dedicated Focus Pods</h3>
+                        <p class="text-sm text-cozy-900/70 leading-relaxed">
+                            Individual study booths, ergonomic chairs, dual-plug outlets at every single seat, and sound-dampened partitions for effortless productivity.
+                        </p>
+                    </div>
+
+                    <div class="p-8 rounded-2xl bg-cozy-50 border border-cozy-200/80 hover:shadow-md transition-shadow space-y-4">
+                        <div class="w-12 h-12 rounded-xl bg-cozy-800 text-cozy-accent flex items-center justify-center">
+                            <i data-lucide="smartphone" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-cozy-900">Zero-Friction Ordering</h3>
+                        <p class="text-sm text-cozy-900/70 leading-relaxed">
+                            Browse the digital menu, customize your sweetness and milk options, pay via GCash, Maya, or cash, and track preparation status in real-time.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 bg-cozy-50 border-b border-cozy-200">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12">
+                    <div>
+                        <span class="text-xs uppercase tracking-widest text-cozy-700 font-semibold font-mono">Curated Favorites</span>
+                        <h2 class="font-serif text-3xl text-cozy-900 font-bold mt-1">Crowd-Favorite Selections</h2>
+                    </div>
+                    <a href="menu.html" class="mt-4 sm:mt-0 text-sm font-semibold text-cozy-800 hover:text-cozy-900 inline-flex items-center space-x-1 group">
+                        <span>View Full Menu</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
+
+                <div id="featured-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 bg-white border-b border-cozy-200">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6">
+                        <span class="text-xs uppercase tracking-widest text-cozy-700 font-semibold font-mono">The Concept</span>
+                        <h2 class="font-serif text-3xl sm:text-4xl text-cozy-900 font-bold leading-tight">
+                            "The Third Place" — where community meets serenity.
+                        </h2>
+                        <p class="text-sm sm:text-base text-cozy-900/80 leading-relaxed">
+                            Sociologist Ray Oldenburg defined the "third place" as the social surroundings separate from the two usual environments of home (the first place) and the workplace or school (the second place).
+                        </p>
+                        <p class="text-sm sm:text-base text-cozy-900/80 leading-relaxed">
+                            At <strong>the third space</strong>, we created an environment that doesn't rush you. Whether you're debugging code for hours, studying for board exams, or meeting a friend for pour-over coffee, our space is yours.
+                        </p>
+                        <div>
+                            <a href="about.html" class="inline-flex items-center space-x-2 text-sm font-semibold text-cozy-800 hover:text-cozy-900 bg-cozy-100 hover:bg-cozy-200 px-5 py-2.5 rounded-xl transition-colors">
+                                <span>Read Our Story & Amenities</span>
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <img src="https://images.unsplash.com/photo-1784126689317-b52e6cc2e60f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Cafe Seating" class="rounded-2xl object-cover h-64 w-full shadow-sm">
+                        <img src="https://plus.unsplash.com/premium_photo-1706800282670-61c04d56a4b8?q=80&w=692&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Coffee Brewing" class="rounded-2xl object-cover h-64 w-full shadow-sm translate-y-6">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 bg-cozy-900 text-white relative overflow-hidden">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6 relative z-10">
+                <h2 class="font-serif text-3xl sm:text-4xl font-bold">Ready to claim your corner of calm?</h2>
+                <p class="text-cozy-200 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+                    Reserve a solo focus pod or long table in advance, or place an order right from your smartphone.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 pt-2">
+                    <a href="reservation.html" class="bg-cozy-accent hover:bg-[#c39263] text-cozy-900 font-semibold px-6 py-3 rounded-xl transition-all shadow-lg">
+                        Book a Focus Booth
+                    </a>
+                    <a href="menu.html" class="bg-white/10 hover:bg-white/20 text-white font-medium border border-white/20 px-6 py-3 rounded-xl transition-all">
+                        Order Food & Drinks
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-mount"></div>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/navbar.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            renderSharedNavAndFooter('home');
+
+            const container = document.getElementById('featured-products-grid');
+            try {
+                const products = await window.TTS_API.getProducts();
+                const featured = products.slice(0, 4);
+
+                container.innerHTML = featured.map(item => `
+                    <div class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow border border-cozy-100 flex flex-col justify-between">
+                        <div>
+                            <img src="${item.image_url}" alt="${item.name}" class="w-full h-40 rounded-xl object-cover mb-4">
+                            <span class="text-[10px] font-mono uppercase bg-cozy-100 text-cozy-800 px-2 py-0.5 rounded-full font-semibold">${item.category}</span>
+                            <h3 class="font-serif text-lg font-bold text-cozy-900 mt-2">${item.name}</h3>
+                            <p class="text-xs text-cozy-800/70 mt-1 line-clamp-2">${item.description}</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-cozy-100">
+                            <span class="font-bold text-cozy-900 text-base">₱${Number(item.price).toFixed(2)}</span>
+                            <a href="menu.html" class="bg-cozy-100 hover:bg-cozy-800 hover:text-white text-cozy-800 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center space-x-1">
+                                <span>Order</span>
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            </a>
+                        </div>
+                    </div>
+                `).join('');
+
+                if (window.lucide) window.lucide.createIcons();
+            } catch (err) {
+                console.error("Error loading featured products:", err);
+            }
+        });
+    </script>
+</body>
+</html>

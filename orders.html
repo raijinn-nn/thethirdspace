@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order | the third space</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cozy: {
+                            50: '#FAF8F5',
+                            100: '#F0EBE1',
+                            200: '#E1D7C6',
+                            700: '#7B5644',
+                            800: '#5C4033',
+                            900: '#3A2820',
+                            accent: '#D4A373'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            background-color: #FAF8F5;
+            color: #3A2820;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #F0EBE1; }
+        ::-webkit-scrollbar-thumb { background: #D4A373; border-radius: 4px; }
+        .hide { display: none !important; }
+    </style>
+</head>
+<body class="antialiased font-sans min-h-screen flex flex-col">
+
+    <div id="navbar-mount"></div>
+
+    <main class="flex-grow max-w-4xl mx-auto px-4 sm:px-6 py-12 w-full">
+        <div class="text-center max-w-xl mx-auto mb-10 space-y-3">
+            <span class="text-xs uppercase tracking-widest text-cozy-700 font-semibold font-mono">Live Kitchen Tracker</span>
+            <h1 class="font-serif text-3xl sm:text-4xl font-bold text-cozy-900">Track Your Order</h1>
+            <p class="text-sm text-cozy-800/70">
+                Enter your order reference code (e.g., <strong>TTS-1001</strong>) to view real-time kitchen progress.
+            </p>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-cozy-200 mb-8">
+            <form id="track-search-form" class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <i data-lucide="receipt" class="w-5 h-5 text-gray-400 absolute left-3.5 top-1/2 transform -translate-y-1/2"></i>
+                    <input type="text" id="track-order-input" required placeholder="Enter Order Number (e.g. TTS-1001)" 
+                           class="w-full pl-11 pr-4 py-3 text-sm font-mono border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cozy-accent">
+                </div>
+                <button type="submit" class="bg-cozy-800 hover:bg-cozy-900 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow flex items-center justify-center space-x-2 text-sm">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                    <span>Track Order</span>
+                </button>
+            </form>
+        </div>
+
+        <div id="order-display-card" class="bg-white rounded-2xl shadow-md border border-cozy-200 overflow-hidden mb-12 hide">
+            <div class="p-6 bg-cozy-50 border-b border-cozy-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <span class="text-xs text-gray-500 font-mono block">Order Reference</span>
+                    <h2 class="font-mono text-2xl font-bold text-cozy-900" id="card-order-code">TTS-1001</h2>
+                    <span class="text-xs text-gray-500" id="card-order-time">Placed just now</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button id="refresh-order-btn" class="p-2 bg-white hover:bg-cozy-100 text-cozy-800 border border-gray-200 rounded-xl transition-colors" title="Refresh Status">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    </button>
+                    <span id="card-status-pill" class="px-3.5 py-1.5 rounded-full text-xs font-semibold font-mono uppercase tracking-wider bg-yellow-100 text-yellow-800">
+                        Preparing
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-6 sm:p-8 border-b border-gray-100">
+                <div class="relative flex justify-between items-center max-w-2xl mx-auto">
+                    <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 -z-0"></div>
+                    <div id="timeline-progress-bar" class="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-emerald-500 -z-0 transition-all duration-500" style="width: 33%;"></div>
+
+                    <div class="flex flex-col items-center relative z-10 step-node" data-step="1">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow font-bold text-xs">
+                            <i data-lucide="check" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-cozy-900 mt-2">Received</span>
+                    </div>
+
+                    <div class="flex flex-col items-center relative z-10 step-node" data-step="2">
+                        <div class="w-10 h-10 rounded-full bg-yellow-500 text-white flex items-center justify-center shadow font-bold text-xs">
+                            <i data-lucide="flame" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-cozy-900 mt-2">Brewing / Prep</span>
+                    </div>
+
+                    <div class="flex flex-col items-center relative z-10 step-node" data-step="3">
+                        <div class="w-10 h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center shadow font-bold text-xs">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-gray-500 mt-2">Ready</span>
+                    </div>
+
+                    <div class="flex flex-col items-center relative z-10 step-node" data-step="4">
+                        <div class="w-10 h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center shadow font-bold text-xs">
+                            <i data-lucide="smile" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-gray-500 mt-2">Delivered</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h4 class="font-serif text-base font-bold text-cozy-900 mb-3 border-b border-gray-100 pb-2">Items Summary</h4>
+                    <div id="card-items-list" class="space-y-2.5 text-xs">
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-200 flex justify-between items-center text-sm font-bold text-cozy-900">
+                        <span>Total Paid</span>
+                        <span id="card-total-price" class="font-mono text-base">₱0.00</span>
+                    </div>
+                </div>
+
+                <div class="bg-cozy-50/60 p-4 rounded-xl border border-cozy-200/80 space-y-3 text-xs">
+                    <h4 class="font-serif text-base font-bold text-cozy-900 border-b border-cozy-200 pb-2">Order Info</h4>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Customer:</span>
+                        <span class="font-semibold text-cozy-900" id="card-cust-name">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Dining Option:</span>
+                        <span class="font-semibold text-cozy-900 capitalize" id="card-dining-option">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Delivery Spot:</span>
+                        <span class="font-semibold text-cozy-900" id="card-table-num">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Payment:</span>
+                        <span class="font-semibold text-cozy-900 capitalize" id="card-payment">-</span>
+                    </div>
+                    <div id="card-notes-wrapper" class="pt-2 border-t border-cozy-200 hide">
+                        <span class="text-gray-500 block mb-1">Barista Notes:</span>
+                        <p class="text-gray-700 italic" id="card-notes-text">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-cozy-200">
+            <h3 class="font-serif text-lg font-bold text-cozy-900 mb-4 flex items-center space-x-2">
+                <i data-lucide="history" class="w-4 h-4 text-cozy-800"></i>
+                <span>Recent Cafe Orders (Click to Track)</span>
+            </h3>
+            <div id="recent-orders-list" class="divide-y divide-gray-100">
+                <div class="py-6 text-center text-xs text-gray-400">Loading recent transactions...</div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-mount"></div>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/navbar.js"></script>
+    <script>
+        let currentLoadedOrder = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            renderSharedNavAndFooter('orders');
+
+            const recentOrders = await loadRecentOrders();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryId = urlParams.get('id');
+
+            if (queryId) {
+                document.getElementById('track-order-input').value = queryId.trim();
+                await searchOrder(queryId.trim());
+            } else if (recentOrders && recentOrders.length > 0) {
+                const latestCode = recentOrders[0].order_number;
+                document.getElementById('track-order-input').value = latestCode;
+                await searchOrder(latestCode);
+            }
+
+            document.getElementById('track-search-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const code = document.getElementById('track-order-input').value.trim();
+                if (code) await searchOrder(code);
+            });
+
+            document.getElementById('refresh-order-btn').addEventListener('click', async () => {
+                if (currentLoadedOrder) {
+                    await searchOrder(currentLoadedOrder.order_number);
+                    window.showToast("Order status refreshed");
+                }
+            });
+        });
+
+        async function searchOrder(code) {
+            const card = document.getElementById('order-display-card');
+            try {
+                const order = await window.TTS_API.getOrder(code);
+                if (!order) {
+                    window.showToast(`Order "${code}" not found.`, "error");
+                    card.classList.add('hide');
+                    return;
+                }
+
+                currentLoadedOrder = order;
+                renderOrderCard(order);
+                card.classList.remove('hide');
+            } catch (err) {
+                console.error("Tracking error:", err);
+                window.showToast("Failed to lookup order.", "error");
+            }
+        }
+
+        function renderOrderCard(order) {
+            document.getElementById('card-order-code').textContent = order.order_number;
+            document.getElementById('card-cust-name').textContent = order.customer_name || 'Guest';
+            document.getElementById('card-dining-option').textContent = order.order_type || 'dine-in';
+            document.getElementById('card-table-num').textContent = order.table_number || 'Takeout';
+            document.getElementById('card-payment').textContent = `${order.payment_method} (${order.payment_status})`;
+            document.getElementById('card-total-price').textContent = `₱${Number(order.total_amount).toFixed(2)}`;
+            
+            const timeStr = order.created_at ? new Date(order.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'Recently';
+            document.getElementById('card-order-time').textContent = `Placed on ${timeStr}`;
+
+            if (order.notes) {
+                document.getElementById('card-notes-wrapper').classList.remove('hide');
+                document.getElementById('card-notes-text').textContent = `"${order.notes}"`;
+            } else {
+                document.getElementById('card-notes-wrapper').classList.add('hide');
+            }
+
+            const items = Array.isArray(order.items) ? order.items : [];
+            document.getElementById('card-items-list').innerHTML = items.map(item => `
+                <div class="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
+                    <span class="text-cozy-900 font-medium">${item.qty}x ${item.name}</span>
+                    <span class="text-gray-500 font-mono">₱${(Number(item.price) * Number(item.qty)).toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            const pill = document.getElementById('card-status-pill');
+            const status = (order.status || 'pending').toLowerCase();
+            pill.textContent = status;
+
+            let colorClasses = 'bg-yellow-100 text-yellow-800';
+            let step = 1;
+
+            if (status === 'pending') {
+                colorClasses = 'bg-yellow-100 text-yellow-800';
+                step = 1;
+            } else if (status === 'preparing') {
+                colorClasses = 'bg-amber-100 text-amber-800';
+                step = 2;
+            } else if (status === 'ready') {
+                colorClasses = 'bg-blue-100 text-blue-800';
+                step = 3;
+            } else if (status === 'completed') {
+                colorClasses = 'bg-emerald-100 text-emerald-800';
+                step = 4;
+            } else if (status === 'cancelled') {
+                colorClasses = 'bg-rose-100 text-rose-800';
+                step = 0;
+            }
+
+            pill.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold font-mono uppercase tracking-wider ${colorClasses}`;
+
+            const progressBar = document.getElementById('timeline-progress-bar');
+            if (step === 1) progressBar.style.width = '10%';
+            else if (step === 2) progressBar.style.width = '38%';
+            else if (step === 3) progressBar.style.width = '68%';
+            else if (step === 4) progressBar.style.width = '100%';
+            else progressBar.style.width = '0%';
+
+            const stepConfig = [
+                { num: 1, activeClass: 'bg-emerald-500 text-white ring-4 ring-emerald-100' },
+                { num: 2, activeClass: 'bg-amber-500 text-white ring-4 ring-amber-100' },
+                { num: 3, activeClass: 'bg-blue-500 text-white ring-4 ring-blue-100' },
+                { num: 4, activeClass: 'bg-emerald-600 text-white ring-4 ring-emerald-100' }
+            ];
+
+            stepConfig.forEach(cfg => {
+                const nodeEl = document.querySelector(`.step-node[data-step="${cfg.num}"]`);
+                if (!nodeEl) return;
+                const circle = nodeEl.querySelector('div');
+                const label = nodeEl.querySelector('span');
+
+                if (step >= cfg.num) {
+                    circle.className = `w-10 h-10 rounded-full ${cfg.activeClass} flex items-center justify-center shadow-md font-bold text-xs transition-all duration-300 transform scale-105`;
+                    label.className = 'text-[11px] font-bold text-cozy-900 mt-2 transition-colors';
+                } else {
+                    circle.className = 'w-10 h-10 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center shadow-sm font-bold text-xs transition-all duration-300';
+                    label.className = 'text-[11px] font-medium text-gray-400 mt-2 transition-colors';
+                }
+            });
+
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        async function loadRecentOrders() {
+            const listEl = document.getElementById('recent-orders-list');
+            try {
+                const orders = await window.TTS_API.getOrders();
+                if (orders.length === 0) {
+                    listEl.innerHTML = '<div class="py-4 text-center text-xs text-gray-400">No orders placed yet.</div>';
+                    return;
+                }
+
+                listEl.innerHTML = orders.slice(0, 5).map(o => `
+                    <div onclick="selectRecentOrder('${o.order_number}')" 
+                         class="py-3 px-3 hover:bg-cozy-50 rounded-xl cursor-pointer transition-colors flex justify-between items-center text-xs">
+                        <div class="flex items-center space-x-3">
+                            <span class="font-mono font-bold text-cozy-900 bg-cozy-100 px-2 py-1 rounded">${o.order_number}</span>
+                            <div>
+                                <span class="font-medium text-cozy-900 block">${o.customer_name}</span>
+                                <span class="text-gray-500 text-[11px]">${o.table_number || 'Takeout'} • ₱${Number(o.total_amount).toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase font-semibold 
+                            ${o.status === 'completed' ? 'bg-emerald-100 text-emerald-800' : 
+                              o.status === 'preparing' ? 'bg-amber-100 text-amber-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${o.status}
+                        </span>
+                    </div>
+                `).join('');
+                return orders;
+            } catch (err) {
+                console.error("Failed to load recent orders:", err);
+                return [];
+            }
+        }
+
+        window.selectRecentOrder = function(code) {
+            document.getElementById('track-order-input').value = code;
+            searchOrder(code);
+            window.scrollTo({ top: 180, behavior: 'smooth' });
+        };
+    </script>
+</body>
+</html>
+

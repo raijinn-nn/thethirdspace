@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu & Online Ordering | the third space</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cozy: {
+                            50: '#FAF8F5',
+                            100: '#F0EBE1',
+                            200: '#E1D7C6',
+                            700: '#7B5644',
+                            800: '#5C4033',
+                            900: '#3A2820',
+                            accent: '#D4A373'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            background-color: #FAF8F5;
+            color: #3A2820;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #F0EBE1; }
+        ::-webkit-scrollbar-thumb { background: #D4A373; border-radius: 4px; }
+        .hide { display: none !important; }
+    </style>
+</head>
+<body class="antialiased font-sans min-h-screen flex flex-col">
+
+    <div id="navbar-mount"></div>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-8 w-full">
+        <div class="text-center max-w-3xl mx-auto mb-10 space-y-3">
+            <div class="inline-flex items-center space-x-2 bg-cozy-100 border border-cozy-200 px-3.5 py-1.5 rounded-full text-xs font-semibold text-cozy-800">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                <span>Table Ordering & Takeout Active</span>
+            </div>
+            <h1 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-cozy-900">Craft Menu & Ordering</h1>
+            <p class="text-sm sm:text-base text-cozy-800/70">
+                Freshly prepared beverages, oven-baked pastries, and hearty rice bowls delivered straight to your workspace.
+            </p>
+        </div>
+
+        <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-cozy-200 mb-8 space-y-4">
+            <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div class="relative w-full sm:w-80">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 transform -translate-y-1/2"></i>
+                    <input type="text" id="menu-search-input" placeholder="Search coffee, pastries, rice meals..." 
+                           class="w-full pl-10 pr-4 py-2 text-sm bg-cozy-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cozy-accent focus:bg-white transition-all">
+                </div>
+
+                <button id="floating-cart-btn" class="w-full sm:w-auto inline-flex items-center justify-center space-x-2.5 bg-cozy-800 hover:bg-cozy-900 text-white px-5 py-2.5 rounded-xl transition-all shadow">
+                    <i data-lucide="shopping-bag" class="w-4 h-4 text-cozy-accent"></i>
+                    <span class="text-xs font-semibold">View Order Cart</span>
+                    <span id="cart-badge-count" class="bg-cozy-accent text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
+                </button>
+            </div>
+
+            <div class="flex items-center space-x-2 overflow-x-auto pb-1 text-xs font-medium no-scrollbar" id="category-pills-container">
+                <button data-cat="all" class="cat-pill active px-4 py-2 rounded-xl bg-cozy-800 text-white transition-colors flex-shrink-0">All Items</button>
+                <button data-cat="Coffees" class="cat-pill px-4 py-2 rounded-xl bg-cozy-100 hover:bg-cozy-200 text-cozy-900 transition-colors flex-shrink-0">Coffees</button>
+                <button data-cat="Tea & Matcha" class="cat-pill px-4 py-2 rounded-xl bg-cozy-100 hover:bg-cozy-200 text-cozy-900 transition-colors flex-shrink-0">Tea & Matcha</button>
+                <button data-cat="Frappes" class="cat-pill px-4 py-2 rounded-xl bg-cozy-100 hover:bg-cozy-200 text-cozy-900 transition-colors flex-shrink-0">Frappes</button>
+                <button data-cat="Fresh Pastries" class="cat-pill px-4 py-2 rounded-xl bg-cozy-100 hover:bg-cozy-200 text-cozy-900 transition-colors flex-shrink-0">Fresh Pastries</button>
+                <button data-cat="Rice Meals" class="cat-pill px-4 py-2 rounded-xl bg-cozy-100 hover:bg-cozy-200 text-cozy-900 transition-colors flex-shrink-0">Rice Meals</button>
+            </div>
+        </div>
+
+        <div id="menu-items-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full py-16 text-center text-gray-400">Loading artisanal menu...</div>
+        </div>
+    </main>
+
+    <div id="cart-backdrop" class="fixed inset-0 bg-black/50 z-50 hide transition-opacity opacity-0"></div>
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-cozy-50 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-4 sm:p-5 border-b border-cozy-200 flex justify-between items-center bg-white">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="shopping-bag" class="w-5 h-5 text-cozy-800"></i>
+                <h2 class="font-serif text-xl font-bold text-cozy-900">Your Current Order</h2>
+            </div>
+            <button id="close-cart-drawer-btn" class="p-2 text-gray-400 hover:text-gray-800 rounded-full hover:bg-gray-100">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <div id="cart-drawer-items" class="flex-grow overflow-y-auto p-4 space-y-3">
+            <div class="text-center text-gray-400 py-16" id="cart-drawer-empty">
+                <i data-lucide="coffee" class="w-10 h-10 mx-auto text-cozy-200 mb-2"></i>
+                <p class="text-sm">Your order is empty.</p>
+                <p class="text-xs text-gray-400 mt-1">Select any item from the menu to add.</p>
+            </div>
+        </div>
+        <div class="p-4 sm:p-5 bg-white border-t border-cozy-200 space-y-3">
+            <div class="flex justify-between items-center text-xs text-gray-500">
+                <span>Estimated Prep Time</span>
+                <span class="font-medium text-cozy-800">10 – 15 mins</span>
+            </div>
+            <div class="flex justify-between items-center text-base font-bold text-cozy-900 pt-1 border-t border-gray-100">
+                <span>Subtotal</span>
+                <span id="cart-drawer-subtotal">₱0.00</span>
+            </div>
+            <button id="cart-checkout-proceed-btn" disabled 
+                    class="w-full bg-cozy-800 hover:bg-cozy-900 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl transition-all shadow flex items-center justify-center space-x-2">
+                <span>Continue to Checkout</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="checkout-modal" class="fixed inset-0 bg-black/60 z-[60] hide flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[92vh]">
+            <div class="p-4 sm:p-5 border-b border-gray-100 flex justify-between items-center bg-cozy-50">
+                <div>
+                    <h3 class="font-serif text-xl font-bold text-cozy-900">Finalize Your Order</h3>
+                    <p class="text-xs text-gray-500">Review your table details and payment preference</p>
+                </div>
+                <button id="close-checkout-modal-btn" class="text-gray-400 hover:text-gray-800 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-5">
+                <form id="checkout-details-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-cozy-900 uppercase tracking-wider mb-1">Your Name *</label>
+                        <input type="text" id="order-customer-name" required placeholder="e.g. Maria Santos" 
+                               class="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cozy-accent">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-cozy-900 uppercase tracking-wider mb-2">Dining Option *</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="order_type" value="dine-in" class="peer sr-only" checked id="order-type-dinein">
+                                <div class="rounded-xl border-2 border-gray-200 p-3 text-center peer-checked:border-cozy-accent peer-checked:bg-cozy-50 transition-all">
+                                    <i data-lucide="armchair" class="w-5 h-5 mx-auto mb-1 text-cozy-800"></i>
+                                    <span class="text-xs font-semibold text-cozy-900">Dine-in at Table</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="order_type" value="takeout" class="peer sr-only" id="order-type-takeout">
+                                <div class="rounded-xl border-2 border-gray-200 p-3 text-center peer-checked:border-cozy-accent peer-checked:bg-cozy-50 transition-all">
+                                    <i data-lucide="package" class="w-5 h-5 mx-auto mb-1 text-cozy-800"></i>
+                                    <span class="text-xs font-semibold text-cozy-900">Takeout / Pickup</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="table-number-group">
+                        <label class="block text-xs font-semibold text-cozy-900 uppercase tracking-wider mb-1">Table Number or Focus Booth #</label>
+                        <input type="text" id="order-table-number" placeholder="e.g. Table 4 or Booth B2" value="Table 1" 
+                               class="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cozy-accent">
+                    </div>
+
+                    <div class="bg-cozy-100/70 p-3.5 rounded-xl border border-cozy-200">
+                        <label class="block text-xs font-semibold text-cozy-900 mb-0.5">Earn Loyalty Stamp <span class="text-gray-500 font-normal">(Optional)</span></label>
+                        <p class="text-[11px] text-gray-600 mb-2">Enter your mobile # or email to accumulate cafe stamps.</p>
+                        <input type="text" id="order-loyalty-contact" placeholder="0917xxxxxxx or email@example.com" 
+                               class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cozy-accent">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-cozy-900 uppercase tracking-wider mb-1">Kitchen / Barista Notes</label>
+                        <textarea id="order-special-notes" rows="2" placeholder="e.g. Less sugar, extra ice, oat milk preference..." 
+                                  class="w-full px-3.5 py-2 text-xs border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cozy-accent"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-cozy-900 uppercase tracking-wider mb-2">Payment Method *</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="payment_method" value="online" class="peer sr-only" checked id="pay-online">
+                                <div class="rounded-xl border-2 border-gray-200 p-3 text-center peer-checked:border-cozy-accent peer-checked:bg-cozy-50 transition-all">
+                                    <i data-lucide="qr-code" class="w-5 h-5 mx-auto mb-1 text-cozy-800"></i>
+                                    <span class="text-xs font-semibold text-cozy-900">Online QR (GCash/Maya)</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="payment_method" value="cash" class="peer sr-only" id="pay-cash">
+                                <div class="rounded-xl border-2 border-gray-200 p-3 text-center peer-checked:border-cozy-accent peer-checked:bg-cozy-50 transition-all">
+                                    <i data-lucide="banknote" class="w-5 h-5 mx-auto mb-1 text-cozy-800"></i>
+                                    <span class="text-xs font-semibold text-cozy-900">Cash at Counter</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="p-4 sm:p-5 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-gray-500 block">Total Due</span>
+                    <span class="text-xl font-bold text-cozy-900" id="checkout-amount-display">₱0.00</span>
+                </div>
+                <button id="checkout-final-submit-btn" 
+                        class="bg-cozy-800 hover:bg-cozy-900 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow flex items-center space-x-2">
+                    <span>Place Order</span>
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="qr-pay-modal" class="fixed inset-0 bg-black/70 z-[70] hide flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col text-center">
+            <div class="p-4 border-b border-gray-100 bg-cozy-50 flex justify-between items-center">
+                <h3 class="font-serif text-lg font-bold text-cozy-900">Scan to Pay via QRPh</h3>
+                <button id="close-qr-pay-modal-btn" class="text-gray-400 hover:text-gray-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 flex flex-col items-center">
+                <p class="text-xs text-gray-500 mb-4">
+                    Open your <strong>GCash</strong>, <strong>Maya</strong>, or banking app to scan and settle:
+                </p>
+                <div class="font-mono text-2xl font-bold text-cozy-900 mb-4" id="qr-modal-price">₱0.00</div>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TheThirdSpaceFullStackProjectPayment" 
+                     alt="Simulated QRPh" class="w-44 h-44 mb-4 border-2 border-cozy-200 rounded-xl p-2 bg-white">
+                <p class="text-[11px] text-gray-400 mb-5">Simulated instant payment gateway for course project demonstration.</p>
+                <button id="confirm-qr-simulate-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition-colors flex justify-center items-center space-x-2 shadow">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    <span>Simulate Payment & Place Order</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="order-success-modal" class="fixed inset-0 bg-black/60 z-[80] hide flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 text-center space-y-4">
+            <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="check-check" class="w-8 h-8"></i>
+            </div>
+            <h3 class="font-serif text-2xl font-bold text-cozy-900">Order Placed Successfully!</h3>
+            <p class="text-sm text-gray-600">
+                Your order has been recorded in the database and sent directly to the baristas.
+            </p>
+            <div class="bg-cozy-100 p-4 rounded-xl border border-cozy-200 text-center">
+                <span class="text-xs text-gray-500 block uppercase tracking-wider font-semibold">Your Order Number</span>
+                <span class="text-2xl font-mono font-bold text-cozy-900" id="success-order-code">TTS-0000</span>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <a id="success-track-link" href="orders.html" class="flex-1 bg-cozy-800 hover:bg-cozy-900 text-white font-medium py-2.5 rounded-xl text-xs flex items-center justify-center space-x-1 shadow">
+                    <i data-lucide="radar" class="w-3.5 h-3.5"></i>
+                    <span>Track Order Status</span>
+                </a>
+                <button id="success-close-btn" class="flex-1 bg-gray-100 hover:bg-gray-200 text-cozy-900 font-medium py-2.5 rounded-xl text-xs">
+                    Order More
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-mount"></div>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/navbar.js"></script>
+    <script>
+        let allProducts = [];
+        let activeCategory = 'all';
+        let searchQuery = '';
+        let cart = [];
+
+        const els = {
+            grid: document.getElementById('menu-items-grid'),
+            searchInput: document.getElementById('menu-search-input'),
+            pillsContainer: document.getElementById('category-pills-container'),
+            floatingCartBtn: document.getElementById('floating-cart-btn'),
+            cartBadgeCount: document.getElementById('cart-badge-count'),
+            cartBackdrop: document.getElementById('cart-backdrop'),
+            cartDrawer: document.getElementById('cart-drawer'),
+            closeCartDrawerBtn: document.getElementById('close-cart-drawer-btn'),
+            cartDrawerItems: document.getElementById('cart-drawer-items'),
+            cartDrawerEmpty: document.getElementById('cart-drawer-empty'),
+            cartDrawerSubtotal: document.getElementById('cart-drawer-subtotal'),
+            cartCheckoutProceedBtn: document.getElementById('cart-checkout-proceed-btn'),
+            checkoutModal: document.getElementById('checkout-modal'),
+            closeCheckoutModalBtn: document.getElementById('close-checkout-modal-btn'),
+            checkoutDetailsForm: document.getElementById('checkout-details-form'),
+            orderCustomerName: document.getElementById('order-customer-name'),
+            orderTypeDinein: document.getElementById('order-type-dinein'),
+            orderTypeTakeout: document.getElementById('order-type-takeout'),
+            tableNumberGroup: document.getElementById('table-number-group'),
+            orderTableNumber: document.getElementById('order-table-number'),
+            orderLoyaltyContact: document.getElementById('order-loyalty-contact'),
+            orderSpecialNotes: document.getElementById('order-special-notes'),
+            checkoutAmountDisplay: document.getElementById('checkout-amount-display'),
+            checkoutFinalSubmitBtn: document.getElementById('checkout-final-submit-btn'),
+            qrPayModal: document.getElementById('qr-pay-modal'),
+            closeQrPayModalBtn: document.getElementById('close-qr-pay-modal-btn'),
+            qrModalPrice: document.getElementById('qr-modal-price'),
+            confirmQrSimulateBtn: document.getElementById('confirm-qr-simulate-btn'),
+            orderSuccessModal: document.getElementById('order-success-modal'),
+            successOrderCode: document.getElementById('success-order-code'),
+            successTrackLink: document.getElementById('success-track-link'),
+            successCloseBtn: document.getElementById('success-close-btn')
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            renderSharedNavAndFooter('menu');
+            loadSavedCart();
+            await fetchProducts();
+            setupMenuListeners();
+        });
+
+        async function fetchProducts() {
+            try {
+                allProducts = await window.TTS_API.getProducts();
+                renderCategoryPills();
+                renderFilteredProducts();
+            } catch (err) {
+                console.error("Error loading products:", err);
+                els.grid.innerHTML = '<div class="col-span-full py-10 text-center text-red-500">Failed to load menu. Please refresh.</div>';
+            }
+        }
+
+        function renderCategoryPills() {
+            const cats = Array.from(new Set(allProducts.map(p => p.category))).filter(Boolean);
+            
+            let html = `<button data-cat="all" class="cat-pill ${activeCategory === 'all' ? 'active bg-cozy-800 text-white' : 'bg-cozy-100 hover:bg-cozy-200 text-cozy-900'} px-4 py-2 rounded-xl transition-colors flex-shrink-0 font-medium text-xs">All Items (${allProducts.length})</button>`;
+            
+            cats.forEach(c => {
+                const count = allProducts.filter(p => p.category === c).length;
+                const isActive = activeCategory === c;
+                html += `<button data-cat="${c}" class="cat-pill ${isActive ? 'active bg-cozy-800 text-white' : 'bg-cozy-100 hover:bg-cozy-200 text-cozy-900'} px-4 py-2 rounded-xl transition-colors flex-shrink-0 font-medium text-xs">${c} (${count})</button>`;
+            });
+
+            els.pillsContainer.innerHTML = html;
+        }
+
+        function renderFilteredProducts() {
+            let filtered = allProducts.filter(item => {
+                const matchesCat = (activeCategory === 'all') || (item.category === activeCategory);
+                const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                els.grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-gray-400">
+                        <i data-lucide="search-x" class="w-10 h-10 mx-auto text-cozy-200 mb-2"></i>
+                        <p class="text-sm font-medium">No menu items found matching "${searchQuery}".</p>
+                    </div>
+                `;
+                if (window.lucide) window.lucide.createIcons();
+                return;
+            }
+
+            els.grid.innerHTML = filtered.map(item => `
+                <div class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-all border border-cozy-100 flex flex-col justify-between group">
+                    <div>
+                        <div class="relative overflow-hidden rounded-xl mb-3 h-48 bg-cozy-100">
+                            <img src="${item.image_url}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <span class="absolute top-2 left-2 text-[10px] font-mono uppercase bg-cozy-900/80 backdrop-blur text-white px-2.5 py-1 rounded-md font-semibold">
+                                ${item.category}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-serif text-lg font-bold text-cozy-900">${item.name}</h3>
+                            <span class="font-bold text-cozy-900 text-base font-mono">₱${Number(item.price).toFixed(2)}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.description || 'Artisan handcrafted recipe.'}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                        <span class="text-[11px] text-emerald-600 font-medium flex items-center">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Available Fresh
+                        </span>
+                        <button onclick="addToCart(${item.id})" class="bg-cozy-100 hover:bg-cozy-800 hover:text-white text-cozy-900 text-xs font-semibold px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5 shadow-sm active:scale-95">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <span>Add</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        window.addToCart = function(productId) {
+            const product = allProducts.find(p => String(p.id) === String(productId));
+            if (!product) return;
+
+            const existing = cart.find(c => String(c.id) === String(productId));
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: Number(product.price),
+                    image_url: product.image_url,
+                    qty: 1
+                });
+            }
+
+            saveCart();
+            updateCartUI();
+            window.showToast(`Added ${product.name} to order`);
+
+            els.floatingCartBtn.classList.add('scale-105');
+            setTimeout(() => els.floatingCartBtn.classList.remove('scale-105'), 200);
+        };
+
+        window.updateCartQty = function(productId, delta) {
+            const idx = cart.findIndex(c => String(c.id) === String(productId));
+            if (idx === -1) return;
+
+            cart[idx].qty += delta;
+            if (cart[idx].qty <= 0) {
+                cart.splice(idx, 1);
+            }
+
+            saveCart();
+            updateCartUI();
+        };
+
+        function saveCart() {
+            localStorage.setItem('tts_user_cart', JSON.stringify(cart));
+        }
+
+        function loadSavedCart() {
+            try {
+                cart = JSON.parse(localStorage.getItem('tts_user_cart') || '[]');
+                updateCartUI();
+            } catch {
+                cart = [];
+            }
+        }
+
+        function updateCartUI() {
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            els.cartBadgeCount.textContent = totalQty;
+            els.cartDrawerSubtotal.textContent = `₱${totalPrice.toFixed(2)}`;
+            els.checkoutAmountDisplay.textContent = `₱${totalPrice.toFixed(2)}`;
+
+            if (totalQty > 0) {
+                els.cartCheckoutProceedBtn.disabled = false;
+                els.cartDrawerEmpty.classList.add('hide');
+            } else {
+                els.cartCheckoutProceedBtn.disabled = true;
+                els.cartDrawerEmpty.classList.remove('hide');
+            }
+
+            const itemRows = cart.map(item => `
+                <div class="bg-white p-3 rounded-xl border border-gray-200/80 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <img src="${item.image_url}" alt="${item.name}" class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
+                        <div class="overflow-hidden">
+                            <h4 class="text-xs font-bold text-cozy-900 truncate">${item.name}</h4>
+                            <span class="text-xs text-cozy-800/80 font-mono">₱${(item.price * item.qty).toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-cozy-100 rounded-lg p-1">
+                        <button onclick="updateCartQty(${item.id}, -1)" class="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm text-cozy-900 text-xs font-bold hover:bg-red-50 hover:text-red-600">-</button>
+                        <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
+                        <button onclick="updateCartQty(${item.id}, 1)" class="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm text-cozy-900 text-xs font-bold hover:bg-emerald-50 hover:text-emerald-600">+</button>
+                    </div>
+                </div>
+            `).join('');
+
+            els.cartDrawerItems.innerHTML = cart.length === 0 ? els.cartDrawerEmpty.outerHTML : itemRows;
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function toggleCartDrawer(open) {
+            if (open) {
+                els.cartBackdrop.classList.remove('hide');
+                setTimeout(() => els.cartBackdrop.classList.remove('opacity-0'), 10);
+                els.cartDrawer.classList.remove('translate-x-full');
+            } else {
+                els.cartBackdrop.classList.add('opacity-0');
+                els.cartDrawer.classList.add('translate-x-full');
+                setTimeout(() => els.cartBackdrop.classList.add('hide'), 300);
+            }
+        }
+
+        function setupMenuListeners() {
+            els.searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value.trim();
+                renderFilteredProducts();
+            });
+
+            els.pillsContainer.addEventListener('click', (e) => {
+                const btn = e.target.closest('.cat-pill');
+                if (!btn) return;
+
+                document.querySelectorAll('.cat-pill').forEach(b => {
+                    b.classList.remove('bg-cozy-800', 'text-white', 'active');
+                    b.classList.add('bg-cozy-100', 'text-cozy-900');
+                });
+
+                btn.classList.add('bg-cozy-800', 'text-white', 'active');
+                btn.classList.remove('bg-cozy-100', 'text-cozy-900');
+
+                activeCategory = btn.getAttribute('data-cat');
+                renderFilteredProducts();
+            });
+
+            els.floatingCartBtn.addEventListener('click', () => toggleCartDrawer(true));
+            els.closeCartDrawerBtn.addEventListener('click', () => toggleCartDrawer(false));
+            els.cartBackdrop.addEventListener('click', () => toggleCartDrawer(false));
+
+            els.cartCheckoutProceedBtn.addEventListener('click', () => {
+                toggleCartDrawer(false);
+                els.checkoutModal.classList.remove('hide');
+            });
+
+            els.closeCheckoutModalBtn.addEventListener('click', () => {
+                els.checkoutModal.classList.add('hide');
+            });
+
+            els.orderTypeDinein.addEventListener('change', () => {
+                els.tableNumberGroup.classList.remove('hide');
+            });
+            els.orderTypeTakeout.addEventListener('change', () => {
+                els.tableNumberGroup.classList.add('hide');
+            });
+
+            els.checkoutFinalSubmitBtn.addEventListener('click', handleOrderSubmission);
+
+            els.closeQrPayModalBtn.addEventListener('click', () => els.qrPayModal.classList.add('hide'));
+            els.confirmQrSimulateBtn.addEventListener('click', () => executeOrderCreation('online'));
+
+            els.successCloseBtn.addEventListener('click', () => {
+                els.orderSuccessModal.classList.add('hide');
+            });
+        }
+
+        function handleOrderSubmission(e) {
+            e.preventDefault();
+            const customerName = els.orderCustomerName.value.trim();
+            if (!customerName) {
+                window.showToast("Please enter your name for the order.", "error");
+                els.orderCustomerName.focus();
+                return;
+            }
+
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            if (paymentMethod === 'online') {
+                els.qrModalPrice.textContent = `₱${totalPrice.toFixed(2)}`;
+                els.checkoutModal.classList.add('hide');
+                els.qrPayModal.classList.remove('hide');
+            } else {
+                executeOrderCreation('cash');
+            }
+        }
+
+        async function executeOrderCreation(paymentMethod) {
+            els.qrPayModal.classList.add('hide');
+            els.checkoutModal.classList.add('hide');
+
+            const customerName = els.orderCustomerName.value.trim() || 'Guest';
+            const isTakeout = els.orderTypeTakeout.checked;
+            const tableNumber = isTakeout ? 'Takeout' : (els.orderTableNumber.value.trim() || 'Table 1');
+            const loyalty = els.orderLoyaltyContact.value.trim();
+            const notes = els.orderSpecialNotes.value.trim();
+
+            const orderPayload = {
+                customer_name: customerName,
+                order_type: isTakeout ? 'takeout' : 'dine-in',
+                table_number: tableNumber,
+                items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
+                payment_method: paymentMethod,
+                payment_status: paymentMethod === 'online' ? 'paid' : 'pending',
+                loyalty_contact: loyalty,
+                notes: notes
+            };
+
+            try {
+                const createdOrder = await window.TTS_API.createOrder(orderPayload);
+                
+                cart = [];
+                saveCart();
+                updateCartUI();
+
+                els.successOrderCode.textContent = createdOrder.order_number;
+                els.successTrackLink.href = `orders.html?id=${createdOrder.order_number}`;
+                els.orderSuccessModal.classList.remove('hide');
+                window.showToast("Order submitted successfully!");
+            } catch (err) {
+                console.error("Order submission failed:", err);
+                window.showToast("Failed to place order. Please try again.", "error");
+            }
+        }
+    </script>
+</body>
+</html>
+

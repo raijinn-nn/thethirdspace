@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | the third space</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cozy: {
+                            50: '#FAF8F5',
+                            100: '#F0EBE1',
+                            200: '#E1D7C6',
+                            700: '#7B5644',
+                            800: '#5C4033',
+                            900: '#3A2820',
+                            accent: '#D4A373'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- icons and supabase sdk -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            background-color: #FAF8F5;
+            color: #3A2820;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #F0EBE1; }
+        ::-webkit-scrollbar-thumb { background: #D4A373; border-radius: 4px; }
+    </style>
+</head>
+<body class="antialiased font-sans min-h-screen flex flex-col">
+
+    <div id="navbar-mount"></div>
+
+    <!-- about -->
+    <main class="flex-grow">
+        <!-- header hero -->
+        <section class="py-16 md:py-24 bg-cozy-100/50 border-b border-cozy-200">
+            <div class="max-w-4xl mx-auto px-4 text-center space-y-4">
+                <span class="text-xs uppercase tracking-widest text-cozy-700 font-semibold font-mono">Our Heritage & Purpose</span>
+                <h1 class="font-serif text-4xl sm:text-5xl font-bold text-cozy-900 leading-tight">
+                    More than a coffee shop. <br class="hidden sm:inline">A space designed to breathe and build.
+                </h1>
+                <p class="text-base sm:text-lg text-cozy-900/70 max-w-2xl mx-auto leading-relaxed pt-2">
+                    Born from the realization that modern life demands a peaceful retreat between the bustle of home and the pressures of work or university.
+                </p>
+            </div>
+        </section>
+
+        <!-- the third place concept (Ray Oldenburg) -->
+        <section class="py-16 md:py-24 bg-white border-b border-cozy-200">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 text-xs font-mono text-cozy-800 bg-cozy-100 px-3 py-1 rounded-full mb-4">
+                            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                            <span>The Sociological Concept</span>
+                        </div>
+                        <h2 class="font-serif text-3xl font-bold text-cozy-900 mb-4">What is "The Third Space"?</h2>
+                        <div class="space-y-4 text-sm sm:text-base text-cozy-900/80 leading-relaxed">
+                            <p>
+                                In 1989, urban sociologist <strong>Ray Oldenburg</strong> coined the term <em>"the third place"</em> in his seminal book, <em>The Great Good Place</em>.
+                            </p>
+                            <p>
+                                Oldenburg observed that human happiness and mental well-being rely on three primary realms:
+                            </p>
+                            <ul class="space-y-2 border-l-2 border-cozy-accent pl-4 font-medium text-cozy-900">
+                                <li><strong>1st Space:</strong> The Home — where you rest, unwind, and live privately.</li>
+                                <li><strong>2nd Space:</strong> The Workplace / School — where you perform, deliver, and face deadlines.</li>
+                                <li><strong>3rd Space:</strong> The Neutral Public Ground — cozy cafes, libraries, and gathering spots where you belong unconditionally.</li>
+                            </ul>
+                            <p>
+                                We created <strong>the third space</strong> to honor this principle: a community sanctuary free from haste, where ideas flow freely and espresso is served with mindful artistry.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <div class="rounded-3xl overflow-hidden shadow-xl border-4 border-cozy-100">
+                            <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=800&q=80" alt="Cafe Reading Atmosphere" class="w-full h-[400px] object-cover">
+                        </div>
+                        <div class="absolute -bottom-6 -left-6 bg-cozy-900 text-white p-5 rounded-2xl shadow-xl max-w-xs border border-cozy-800 hidden sm:block">
+                            <i data-lucide="quote" class="w-6 h-6 text-cozy-accent mb-2"></i>
+                            <p class="text-xs text-cozy-100 italic leading-relaxed">
+                                "The third place hosts the regular, voluntary, informal, and happily anticipated gatherings of individuals beyond home and work."
+                            </p>
+                            <span class="block text-[10px] text-cozy-accent font-mono mt-2">— Ray Oldenburg (1989)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 bg-cozy-50 border-b border-cozy-200">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <span class="text-xs uppercase tracking-widest text-cozy-700 font-semibold font-mono">Curated Environments</span>
+                    <h2 class="font-serif text-3xl font-bold text-cozy-900 mt-2">Spaces engineered for every mood</h2>
+                    <p class="text-sm text-cozy-800/70 mt-2">Discover the specific zones created inside our cafe for study, collaboration, or leisure.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- booths -->
+                    <div class="bg-white rounded-2xl p-6 border border-cozy-200/80 shadow-sm space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-cozy-100 flex items-center justify-center text-cozy-800">
+                            <i data-lucide="headphones" class="w-5 h-5 text-cozy-800"></i>
+                        </div>
+                        <h3 class="font-serif text-lg font-bold text-cozy-900">Silent Focus Booths</h3>
+                        <p class="text-xs text-cozy-800/70 leading-relaxed">
+                            Acoustically treated solo pods featuring warm ambient desk lamps, dual power outlets, USB-C fast charging, and zero chatter.
+                        </p>
+                    </div>
+
+                    <!-- communal study table -->
+                    <div class="bg-white rounded-2xl p-6 border border-cozy-200/80 shadow-sm space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-cozy-100 flex items-center justify-center text-cozy-800">
+                            <i data-lucide="users" class="w-5 h-5 text-cozy-800"></i>
+                        </div>
+                        <h3 class="font-serif text-lg font-bold text-cozy-900">Communal Study Table</h3>
+                        <p class="text-xs text-cozy-800/70 leading-relaxed">
+                            Solid oak 10-seater shared workstation equipped with recessed power hubs. Ideal for group study sessions and brainstorming.
+                        </p>
+                    </div>
+
+                    <!-- lounge -->
+                    <div class="bg-white rounded-2xl p-6 border border-cozy-200/80 shadow-sm space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-cozy-100 flex items-center justify-center text-cozy-800">
+                            <i data-lucide="sun" class="w-5 h-5 text-cozy-800"></i>
+                        </div>
+                        <h3 class="font-serif text-lg font-bold text-cozy-900">Sunlit Window Lounge</h3>
+                        <p class="text-xs text-cozy-800/70 leading-relaxed">
+                            Plush armchairs overlooking the street with soft natural daylight. Perfect for reading a book, journaling, or slow sips.
+                        </p>
+                    </div>
+
+                    <!-- slow brew bar -->
+                    <div class="bg-white rounded-2xl p-6 border border-cozy-200/80 shadow-sm space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-cozy-100 flex items-center justify-center text-cozy-800">
+                            <i data-lucide="cup-soda" class="w-5 h-5 text-cozy-800"></i>
+                        </div>
+                        <h3 class="font-serif text-lg font-bold text-cozy-900">Slow Brew Bar</h3>
+                        <p class="text-xs text-cozy-800/70 leading-relaxed">
+                            Interact with our skilled baristas as they craft pour-over V60s, aeropress extractions, and ceremonial grade matcha shots.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ethos -->
+        <section class="py-20 bg-white border-b border-cozy-200">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <span class="text-xs uppercase tracking-widest text-cozy-700 font-semibold font-mono">Our Ethos</span>
+                    <h2 class="font-serif text-3xl font-bold text-cozy-900 mt-2">What we stand for</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="space-y-3">
+                        <div class="text-cozy-accent font-serif text-3xl font-bold">01</div>
+                        <h3 class="font-serif text-xl font-bold text-cozy-900">Uncompromised Craft</h3>
+                        <p class="text-xs sm:text-sm text-cozy-800/70 leading-relaxed">
+                            From direct-trade beans sourced from Benguet and Sagada to single-origin chocolates, we take pride in culinary craftsmanship without shortcuts.
+                        </p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="text-cozy-accent font-serif text-3xl font-bold">02</div>
+                        <h3 class="font-serif text-xl font-bold text-cozy-900">Hospitality That Respects You</h3>
+                        <p class="text-xs sm:text-sm text-cozy-800/70 leading-relaxed">
+                            We don't hover or pressure you to leave. Table ordering via smartphone ensures you can order refills without losing your momentum or focus.
+                        </p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="text-cozy-accent font-serif text-3xl font-bold">03</div>
+                        <h3 class="font-serif text-xl font-bold text-cozy-900">Digital Elegance</h3>
+                        <p class="text-xs sm:text-sm text-cozy-800/70 leading-relaxed">
+                            We built our own full-stack web application powered by Node.js, Express, and Supabase so customers can effortlessly order, reserve, and track meals.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 bg-cozy-100 text-center">
+            <div class="max-w-2xl mx-auto px-4 space-y-4">
+                <h3 class="font-serif text-2xl font-bold text-cozy-900">Experience the third space today</h3>
+                <p class="text-sm text-cozy-800/80">Whether you need an espresso boost or a quiet table to write your thesis, we're ready for you.</p>
+                <div class="flex justify-center gap-4 pt-2">
+                    <a href="menu.html" class="bg-cozy-800 hover:bg-cozy-900 text-white text-xs font-semibold px-6 py-3 rounded-xl transition-all">
+                        Browse the Menu
+                    </a>
+                    <a href="reservation.html" class="bg-white hover:bg-cozy-50 text-cozy-900 border border-cozy-200 text-xs font-semibold px-6 py-3 rounded-xl transition-all">
+                        Book a Table
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-mount"></div>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/navbar.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSharedNavAndFooter('about');
+        });
+    </script>
+</body>
+</html>
+

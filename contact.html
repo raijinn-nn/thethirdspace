@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | the third space</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cozy: {
+                            50: '#FAF8F5',
+                            100: '#F0EBE1',
+                            200: '#E1D7C6',
+                            700: '#7B5644',
+                            800: '#5C4033',
+                            900: '#3A2820',
+                            accent: '#D4A373'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            background-color: #FAF8F5;
+            color: #3A2820;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #F0EBE1; }
+        ::-webkit-scrollbar-thumb { background: #D4A373; border-radius: 4px; }
+        .hide { display: none !important; }
+    </style>
+</head>
+<body class="antialiased font-sans min-h-screen flex flex-col">
+
+    <div id="navbar-mount"></div>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-12 w-full">
+        <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
+            <span class="text-xs uppercase tracking-widest text-cozy-700 font-semibold font-mono">Get In Touch</span>
+            <h1 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-cozy-900">We'd love to hear from you</h1>
+            <p class="text-sm sm:text-base text-cozy-800/70">
+                Have questions about hosting an event, private room bookings, menu allergens, or cafe feedback? Send us a message.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-16">
+            <div class="lg:col-span-7 bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-cozy-200">
+                <h2 class="font-serif text-2xl font-bold text-cozy-900 mb-6 flex items-center space-x-2">
+                    <i data-lucide="mail" class="w-5 h-5 text-cozy-800"></i>
+                    <span>Send an Inquiry</span>
+                </h2>
+
+                <form id="contact-form" class="space-y-4" novalidate>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-cozy-900 uppercase tracking-wider mb-1.5">Your Name *</label>
+                            <input type="text" id="contact-name" required placeholder="e.g. David Lim"
+                                   class="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cozy-accent">
+                            <span class="text-[11px] text-red-500 hidden" id="err-contact-name">Name is required.</span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-cozy-900 uppercase tracking-wider mb-1.5">Email Address *</label>
+                            <input type="email" id="contact-email" required placeholder="david@example.com"
+                                   class="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cozy-accent">
+                            <span class="text-[11px] text-red-500 hidden" id="err-contact-email">Valid email is required.</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-cozy-900 uppercase tracking-wider mb-1.5">Subject / Topic *</label>
+                        <select id="contact-subject" class="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cozy-accent bg-white">
+                            <option value="General Question">General Question</option>
+                            <option value="Private Mezzanine Workshop Booking">Private Mezzanine Workshop Booking</option>
+                            <option value="Partnership & Collaboration">Partnership & Collaboration</option>
+                            <option value="Menu & Dietary Allergens">Menu & Dietary Allergens</option>
+                            <option value="Feedback & Suggestions">Feedback & Suggestions</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-cozy-900 uppercase tracking-wider mb-1.5">Message *</label>
+                        <textarea id="contact-message" rows="5" required placeholder="How can we assist you?"
+                                  class="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cozy-accent"></textarea>
+                        <span class="text-[11px] text-red-500 hidden" id="err-contact-msg">Message must be at least 10 characters.</span>
+                    </div>
+
+                    <button type="submit" id="contact-submit-btn" 
+                            class="w-full bg-cozy-800 hover:bg-cozy-900 text-white font-semibold py-3.5 rounded-xl transition-all shadow flex items-center justify-center space-x-2">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>Submit Message</span>
+                    </button>
+                </form>
+
+                <div id="contact-success-banner" class="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-2 hide">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 flex-shrink-0"></i>
+                    <span>Thank you! Your message has been safely saved to our database. Our team will get back to you shortly.</span>
+                </div>
+            </div>
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-cozy-200 space-y-4">
+                    <h3 class="font-serif text-lg font-bold text-cozy-900 flex items-center space-x-2">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-cozy-800"></i>
+                        <span>Our Location</span>
+                    </h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        <strong>the third space Cafe & Studio</strong><br>
+                         123 MU Hub Blvd, Makati, Metro Manila, Philippines 1234
+                    </p>
+                    <div class="pt-2">
+                        <div class="h-44 rounded-xl bg-cozy-100 border border-cozy-200 overflow-hidden relative flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600&q=80" alt="Map View" class="w-full h-full object-cover opacity-75">
+                            <div class="absolute bg-white/95 backdrop-blur px-3 py-1.5 rounded-lg shadow text-[11px] font-semibold text-cozy-900 flex items-center space-x-1">
+                                <i data-lucide="navigation" class="w-3.5 h-3.5 text-cozy-800"></i>
+                                <span>3 mins from Shopwise Chino Roces</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-cozy-100/70 rounded-2xl p-6 border border-cozy-200 space-y-3">
+                    <h3 class="font-serif text-lg font-bold text-cozy-900 flex items-center space-x-2 border-b border-cozy-200 pb-2">
+                        <i data-lucide="clock" class="w-4 h-4 text-cozy-800"></i>
+                        <span>Operating Hours</span>
+                    </h3>
+                    <div class="space-y-2 text-xs text-cozy-900">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Monday – Friday:</span>
+                            <span class="font-bold">6:00 AM – 11:00 PM</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Saturday – Sunday:</span>
+                            <span class="font-bold">7:00 AM – 10:00 PM</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Holidays:</span>
+                            <span class="font-bold">8:00 AM – 10:00 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-cozy-200">
+            <h2 class="font-serif text-2xl font-bold text-cozy-900 mb-6 text-center">Frequently Asked Questions</h2>
+            
+            <div class="max-w-3xl mx-auto divide-y divide-gray-100" id="faq-accordion">
+                <div class="py-4">
+                    <button class="w-full flex justify-between items-center text-left text-sm font-semibold text-cozy-900 hover:text-cozy-800 focus:outline-none faq-toggle">
+                        <span>Is there reliable Wi-Fi and power outlets?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200"></i>
+                    </button>
+                    <div class="mt-2 text-xs text-gray-600 leading-relaxed hidden faq-answer">
+                        Yes! We have redundant 1 Gbps fiber connections. Every single seat (including solo booths and communal tables) is equipped with dedicated 220V power outlets and USB fast charging ports.
+                    </div>
+                </div>
+
+                <div class="py-4">
+                    <button class="w-full flex justify-between items-center text-left text-sm font-semibold text-cozy-900 hover:text-cozy-800 focus:outline-none faq-toggle">
+                        <span>How does table ordering work?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200"></i>
+                    </button>
+                    <div class="mt-2 text-xs text-gray-600 leading-relaxed hidden faq-answer">
+                        Simply navigate to our <a href="menu.html" class="underline text-cozy-800">Menu page</a>, add your desired drinks or meals, select your table number, and submit your order. Our baristas will deliver it right to your table!
+                    </div>
+                </div>
+
+                <div class="py-4">
+                    <button class="w-full flex justify-between items-center text-left text-sm font-semibold text-cozy-900 hover:text-cozy-800 focus:outline-none faq-toggle">
+                        <span>Can I reserve a focus booth in advance?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200"></i>
+                    </button>
+                    <div class="mt-2 text-xs text-gray-600 leading-relaxed hidden faq-answer">
+                        Absolutely. Visit our <a href="reservation.html" class="underline text-cozy-800">Reservation page</a> to book your preferred zone and time slot for free with any beverage purchase.
+                    </div>
+                </div>
+
+                <div class="py-4">
+                    <button class="w-full flex justify-between items-center text-left text-sm font-semibold text-cozy-900 hover:text-cozy-800 focus:outline-none faq-toggle">
+                        <span>Do you offer dairy-free or plant-based milks?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200"></i>
+                    </button>
+                    <div class="mt-2 text-xs text-gray-600 leading-relaxed hidden faq-answer">
+                        Yes, Oatly Barista oat milk and almond milk alternatives are available for any espresso or matcha drink. Just add a note in your checkout special instructions!
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-mount"></div>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/navbar.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSharedNavAndFooter('contact');
+
+            document.querySelectorAll('.faq-toggle').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const answer = btn.nextElementSibling;
+                    const icon = btn.querySelector('[data-lucide="chevron-down"]');
+                    
+                    answer.classList.toggle('hidden');
+                    if (icon) {
+                        icon.classList.toggle('rotate-180');
+                    }
+                });
+            });
+
+            const form = document.getElementById('contact-form');
+            const nameIn = document.getElementById('contact-name');
+            const emailIn = document.getElementById('contact-email');
+            const subjectIn = document.getElementById('contact-subject');
+            const msgIn = document.getElementById('contact-message');
+            const submitBtn = document.getElementById('contact-submit-btn');
+            const successBanner = document.getElementById('contact-success-banner');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                let valid = true;
+
+                document.getElementById('err-contact-name').classList.add('hidden');
+                document.getElementById('err-contact-email').classList.add('hidden');
+                document.getElementById('err-contact-msg').classList.add('hidden');
+
+                if (!nameIn.value.trim()) {
+                    document.getElementById('err-contact-name').classList.remove('hidden');
+                    valid = false;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailIn.value.trim())) {
+                    document.getElementById('err-contact-email').classList.remove('hidden');
+                    valid = false;
+                }
+
+                if (msgIn.value.trim().length < 10) {
+                    document.getElementById('err-contact-msg').classList.remove('hidden');
+                    valid = false;
+                }
+
+                if (!valid) return;
+
+                const messagePayload = {
+                    name: nameIn.value.trim(),
+                    email: emailIn.value.trim(),
+                    subject: subjectIn.value,
+                    message: msgIn.value.trim()
+                };
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span>Sending Message...</span>';
+
+                try {
+                    await window.TTS_API.createMessage(messagePayload);
+                    successBanner.classList.remove('hide');
+                    window.showToast("Message sent successfully!");
+                    form.reset();
+                } catch (err) {
+                    console.error("Message submission failed:", err);
+                    window.showToast("Failed to send message. Please try again.", "error");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i><span>Submit Message</span>';
+                    if (window.lucide) window.lucide.createIcons();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

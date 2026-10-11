@@ -1,0 +1,20 @@
+{
+  "name": "the-third-space",
+  "version": "1.0.0",
+  "description": "The Third Space - Cozy Cafe & Focus Space Web Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["cafe", "fullstack", "supabase", "express", "nodejs"],
+  "author": "Drilon - AM3 - ITS122P",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
+
