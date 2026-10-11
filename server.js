@@ -588,8 +588,13 @@ app.delete('/api/messages/:id', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`☕ The Third Space Full-Stack Server running at http://localhost:${PORT}`);
-    console.log(`📁 Serving client pages from: ${__dirname}`);
-});
+// Export the app for Vercel
+module.exports = app;
+
+// Keep local development functional
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`☕ Server running at http://localhost:${PORT}`);
+    });
+}
 
